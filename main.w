@@ -16,8 +16,7 @@ let secret_funct = new cloud.Function(inflight () => {
     log("added secret");
 }) as "secret_function";
 
-
-/* works in 0.26.5 */
+/* Works in 0.26.5
 class CustomStore {
     bucket: cloud.Bucket;
 
@@ -35,3 +34,57 @@ let customStore = new CustomStore() as "CustomStore object";
 new cloud.Function(inflight () => {
     customStore.store("alguna");
 }) as "custom_function";
+*/
+
+/* Same as above for latest version */
+interface CustomBucket extends std.IResource { 
+  inflight store(data: str): void;
+  inflight check(data: str): bool;
+}
+
+class CustomStorage impl CustomBucket {
+    bucket: cloud.Bucket;
+    init() { // Create a (cloud) bucket
+      this.bucket = new cloud.Bucket() as "custom_bucket";
+    }
+    pub inflight store(data: str): void { // create a custom store method to upload a couple example files to the bucket
+      let file = "upload";
+
+      this.bucket.put("${file}.txt", data);
+      this.bucket.putJson("${file}.json", Json { "data": data});
+    }
+    pub inflight check(data:str):bool { // another custom method to check the content of a given file(s)
+        
+        if (this.bucket.exists(data)) {
+
+            let fileData = "placeholder";
+            
+            if (this.bucket.tryGet(data) == nil) {
+                let fileData = this.bucket.getJson(data);
+                log("something");
+                assert(fileData.get("data") == "It works!");
+            } else {
+                assert(fileData == "It works!");
+                log("txt");
+            }
+        } else {
+            log("File ${data} not found");
+            return false;
+        }
+    }
+}
+
+let custom_bucket: CustomBucket = new CustomStorage() as "CustomBucket"; // Create a bucket object from the CustomStorage class
+
+let put_smth = inflight (b: CustomBucket): void => {
+    // log("This is the puth_smth inflight method");
+    b.store("It works!");
+    b.check("upload.txt");
+    b.check("upload.json");
+    b.check("unexistent.file");
+};
+
+new cloud.Function(inflight () => {
+    // log("This is the wrapper function");
+    put_smth(custom_bucket);
+});

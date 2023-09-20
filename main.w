@@ -59,7 +59,7 @@ class CustomStorage impl CustomBucket {
 
             let fileData = "placeholder";
             
-            if (this.bucket.tryGet(data) == nil) { // still figuring it out why JS doesn't let me check for a nil/nul variable :D 
+            if (this.bucket.tryGet(data) == nil) { // still figuring out why JS won't let me check for a nil/nul variable :D 
                 let fileData = this.bucket.getJson(data);
                 log("a JSON file");
                 assert(fileData.get("data") == "It works!");

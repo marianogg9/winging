@@ -32,7 +32,6 @@ class CustomStorage impl CustomBucket {
                 log("a JSON file");
             } catch e {
                 if e.contains("is not a valid JSON") {
-                    log("im doing something");
                     let fileData = this.bucket.get(data);
                     assert(fileData == "It works!");
                     log("a TXT file");

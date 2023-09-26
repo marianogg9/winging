@@ -10,7 +10,7 @@ class CustomStorage impl CustomBucket {
     bucket: cloud.Bucket;
     
     init() { // Create a (cloud) bucket
-      this.bucket = new cloud.Bucket() as "custom_bucket";
+      this.bucket = new cloud.Bucket() as "mi-bucket";
     }
     
     pub inflight store(data: str): void { // create a custom store method to upload a couple example files to the bucket
@@ -20,7 +20,7 @@ class CustomStorage impl CustomBucket {
       this.bucket.putJson("${file}.json", Json { "data": data});
     }
     
-    pub inflight check(data:str):bool { // another custom method to check the content of a given file(s)
+    pub inflight check(data:str): bool { // another custom method to check the content of a given file(s)
         
         if (this.bucket.exists(data)) { // check if the file exists in the bucket
 
@@ -31,7 +31,8 @@ class CustomStorage impl CustomBucket {
                 assert(fileData.get("data") == "It works!");
                 log("a JSON file");
             } catch e {
-                if e.contains("is not valid JSON") {
+                if e.contains("is not a valid JSON") {
+                    log("im doing something");
                     let fileData = this.bucket.get(data);
                     assert(fileData == "It works!");
                     log("a TXT file");
@@ -42,7 +43,6 @@ class CustomStorage impl CustomBucket {
 
         } else { // if it doesn't exist, log an error
             log("File ${data} not found");
-            return false;
         }
     }
 }

@@ -10,7 +10,7 @@ let bucket_funct = new cloud.Function(inflight (data: str) => { // create a samp
     log("added ${data}");
 }) as "bucket_function";
 
-let s = new cloud.Secret(name: "username") as "the_secret";
+let s = new cloud.Secret(name: "username1") as "the_secret";
 
 let secret_funct = new cloud.Function(inflight () => {
     let sVal = s.value();
@@ -20,12 +20,8 @@ let secret_funct = new cloud.Function(inflight () => {
 
 let custom_bucket: customThings.CustomBucket = new customThings.CustomStorage() as "CustomBucket"; // create a bucket object from the CustomStorage class
 
-let put_smth = inflight (b: customThings.CustomBucket): void => { // decouple inflight method for readability
-    b.store("It works!");
-};
-
-let fput = new cloud.Function(inflight () => { // declare the "put" function
-    put_smth(custom_bucket);
+let fput = new cloud.Function(inflight () => {
+    custom_bucket.store("It works!");
 }) as "put";
 
 if let putFn = aws.Function.from(fput) {
@@ -33,27 +29,13 @@ if let putFn = aws.Function.from(fput) {
         aws.PolicyStatement {
             actions: ["s3:PutObject*"],
             effect: aws.Effect.ALLOW,
-            resources: ["*"] // the aws library does not yet cover buckets, nor cloud library accepts naming a bucket
+            resources: ["*"] // could not yet find a way of referencing the target bucket ARN
         }
     );
 }
-
-let check_smth = inflight (b: customThings.CustomBucket): void => { // decouple inflight method (to be used in the below function) for readability
-    b.check("upload.txt");
-    b.check("upload.json");
-    b.check("unexistent.file");
-};
 
 let fcheck = new cloud.Function(inflight () => { // declare the "check" function
-    check_smth(custom_bucket);
+    custom_bucket.check("upload.txt");
+    custom_bucket.check("upload.json");
+    custom_bucket.check("unexistent.file");
 }) as "check";
-
-if let checkFn = aws.Function.from(fcheck) {
-    checkFn.addPolicyStatements(
-        aws.PolicyStatement {
-            actions: ["s3:GetObject*"],
-            effect: aws.Effect.ALLOW,
-            resources: ["*"] // the aws library does not yet cover buckets, nor cloud library accepts naming a bucket
-        }
-    );
-}

@@ -24,7 +24,8 @@ let fput = new cloud.Function(inflight () => {
     custom_bucket.store("It works!");
 }) as "put";
 
-if let putFn = aws.Function.from(fput) {
+// next policy is not required (Winglang will populate policies by itself), but I had to dig a bit to find how to, so I'm adding it here for future reference
+if let putFn = aws.Function.from(fput) { 
     putFn.addPolicyStatements(
         aws.PolicyStatement {
             actions: ["s3:PutObject*"],

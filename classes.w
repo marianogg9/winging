@@ -10,7 +10,7 @@ class CustomStorage impl CustomBucket {
     bucket: cloud.Bucket;
     
     init() { // Create a (cloud) bucket
-      this.bucket = new cloud.Bucket() as "mi-bucket";
+      this.bucket = new cloud.Bucket() as "custom-bucket";
     }
     
     pub inflight store(data: str): void { // create a custom store method to upload a couple example files to the bucket
